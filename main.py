@@ -42,7 +42,7 @@ while cap.isOpened():
         out.write(frame)  # 毎フレーム書き込む
 
     # フレームを表示
-    cv2.imshow('Frame', frame)
+    cv2.imshow('RaspberryPi Camera', frame)
 
     key = cv2.waitKey(1) & 0xFF
 
