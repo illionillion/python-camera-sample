@@ -1,60 +1,84 @@
-import cv2      # 撮影するライブラリ
-import datetime # 現在時刻を取得するライブラリ
-import time     # 時間を計測するライブラリ
+import cv2
+import datetime
+import time
+import os
+import ffmpeg
+import imageio_ffmpeg
 from utils.overlay import draw_text_with_background
 
-# 使用するカメラのデバイス番号を指定（通常は0）
 cap = cv2.VideoCapture(0)
 
-# 動画保存設定
-dt = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")  # ファイル名
-codec = cv2.VideoWriter_fourcc(*"mp4v")                 # コーデック
-out = None                                              # 保存する動画
-start_time = 0                                          # 録画開始時間
-recording = False                                       # 録画フラグ
+# 解像度取得
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-# 撮影開始
+# ファイル名
+dt = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+avi_filename = f"{dt}.avi"
+mp4_filename = f"{dt}.mp4"
+codec = cv2.VideoWriter_fourcc(*"XVID")
+
+out = None
+start_time = 0
+recording = False
+
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
 
-    # 操作説明
+    # 操作案内表示
     draw_text_with_background(frame, "[s]:Start REC", (5, 415), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
-    draw_text_with_background(frame, "[e]:End REC", (5, 445), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
-    draw_text_with_background(frame, "[q]:Quit", (5, 475), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
+    draw_text_with_background(frame, "[e]:End REC",   (5, 445), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
+    draw_text_with_background(frame, "[q]:Quit",      (5, 475), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
 
-    # 録画が開始されたらフレームを動画として保存
     if recording:
         out.write(frame)
         elapsed_time = time.time() - start_time
         elapsed_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
         draw_text_with_background(frame, f"REC:{elapsed_str}", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), (255, 255, 255), 0.6, 2)
 
-    # フレームを表示
     cv2.imshow('Frame', frame)
-
-        # キー取得
     key = cv2.waitKey(1) & 0xFF
 
-    # 録画開始：キーが[s] かつ 録画していない
+    # 録画開始
     if key == ord('s') and not recording:
-        out = cv2.VideoWriter(f"{dt}.mp4", codec, 20.0, (640, 480))
+        out = cv2.VideoWriter(avi_filename, codec, 20.0, (width, height))
+        if not out.isOpened():
+            print("❌ VideoWriter の初期化に失敗しました")
+            break
         recording = True
         start_time = time.time()
-        print("録画を開始しました。")
+        print("📹 録画を開始しました")
 
-    # 録画終了：キーが[e] かつ 録画中
+    # 録画終了
     elif key == ord('e') and recording:
         recording = False
         out.release()
-        print("録画を終了しました。")
+        print("🛑 録画を終了しました")
 
-    # アプリ終了：キーが[q]
+        # ffmpeg-python で mp4 に変換
+        print("🔄 mp4 に変換中...")
+        try:
+            ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+
+            ffmpeg.input(avi_filename).output(
+                mp4_filename,
+                vcodec="libx264",
+                crf=23,
+                preset="veryfast"
+            ).run(cmd=ffmpeg_exe)
+
+            print(f"✅ 変換完了: {mp4_filename}")
+            os.remove(avi_filename)
+            print(f"🗑 元のファイル削除: {avi_filename}")
+        except Exception as e:
+            print("❌ 変換中にエラーが発生:", e)
+
+    # 終了
     elif key == ord('q'):
-        print("アプリを終了しました。")
+        print("👋 アプリを終了します")
         break
-    
 
 # 後片付け
 cap.release()
