@@ -5,6 +5,8 @@ import os
 import ffmpeg
 import imageio_ffmpeg
 from utils.overlay import draw_text_with_background
+from utils.convert import convert_to_mp4
+import threading
 
 cap = cv2.VideoCapture(0)
 
@@ -62,23 +64,12 @@ while cap.isOpened():
         out.release()
         print("🛑 録画を終了しました")
 
-        # ffmpeg-python で mp4 に変換
-        print("🔄 mp4 に変換中...")
-        try:
-            ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
-
-            ffmpeg.input(avi_filename).output(
-                mp4_filename,
-                vcodec="libx264",
-                crf=23,
-                preset="veryfast"
-            ).run(cmd=ffmpeg_exe)
-
-            print(f"✅ 変換完了: {mp4_filename}")
-            os.remove(avi_filename)
-            print(f"🗑 元のファイル削除: {avi_filename}")
-        except Exception as e:
-            print("❌ 変換中にエラーが発生:", e)
+        # 非同期で変換処理
+        threading.Thread(
+            target=convert_to_mp4,
+            args=(avi_filename, mp4_filename),
+            daemon=True
+        ).start()
 
     # 終了
     elif key == ord('q'):
