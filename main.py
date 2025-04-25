@@ -12,6 +12,9 @@ cap = cv2.VideoCapture(0)
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+# FPSを取得
+fps = cap.get(cv2.CAP_PROP_FPS)
+
 # ファイル名
 dt = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 avi_filename = f"{dt}.avi"
@@ -36,14 +39,16 @@ while cap.isOpened():
         elapsed_time = time.time() - start_time
         elapsed_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
         draw_text_with_background(frame, f"REC:{elapsed_str}", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), (255, 255, 255), 0.6, 2)
-        out.write(frame)
+        out.write(frame)  # 毎フレーム書き込む
 
+    # フレームを表示
     cv2.imshow('Frame', frame)
+
     key = cv2.waitKey(1) & 0xFF
 
     # 録画開始
     if key == ord('s') and not recording:
-        out = cv2.VideoWriter(avi_filename, codec, 20.0, (width, height))
+        out = cv2.VideoWriter(avi_filename, codec, fps, (width, height))  # FPSを設定
         if not out.isOpened():
             print("❌ VideoWriter の初期化に失敗しました")
             break
