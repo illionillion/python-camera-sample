@@ -1,11 +1,10 @@
-# utils/convert.py
 import ffmpeg
 import os
 import imageio_ffmpeg
 
 def convert_to_mp4(avi_filename: str, mp4_filename: str):
     """ffmpeg-python で mp4 に変換"""
-    
+
     print("🔄 mp4 に変換中...")
     try:
         ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
