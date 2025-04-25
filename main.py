@@ -29,7 +29,7 @@ while cap.isOpened():
         out.write(frame)
         elapsed_time = time.time() - start_time
         elapsed_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-        cv2.putText(frame, f"REC:{elapsed_str}", (5, 20), cv2. FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
+        draw_text_with_background(frame, f"REC:{elapsed_str}", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), (255, 255, 255), 0.6, 2)
 
     # フレームを表示
     cv2.imshow('Frame', frame)
