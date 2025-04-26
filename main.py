@@ -37,7 +37,7 @@ while cap.isOpened():
     if recording:
         elapsed_time = time.time() - start_time
         elapsed_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-        draw_text_with_background(frame, f"REC:{elapsed_str}", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), (255, 255, 255), 0.6, 2)
+        draw_text_with_background(frame, f"REC:{elapsed_str}", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), (255, 255, 255), 0.6, 2)
         out.write(frame)  # 毎フレーム書き込む
 
     # フレームを表示
