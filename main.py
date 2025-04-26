@@ -47,6 +47,9 @@ while cap.isOpened():
 
     # 録画開始
     if key == ord('s') and not recording:
+        dt = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        avi_filename = f"{dt}.avi"
+        mp4_filename = f"{dt}.mp4"
         out = cv2.VideoWriter(avi_filename, codec, fps, (width, height))  # FPSを設定
         if not out.isOpened():
             print("❌ VideoWriter の初期化に失敗しました")
