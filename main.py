@@ -1,13 +1,14 @@
 import cv2
 import datetime
 import time
+import threading
 from utils.overlay import draw_text_with_background
 from utils.convert import convert_to_mp4
-import threading
+from utils.recorder import Recorder
 
 cap = cv2.VideoCapture(0)
 
-# 解像度取得
+# 解像度とFPS取得
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -20,7 +21,7 @@ avi_filename = f"{dt}.avi"
 mp4_filename = f"{dt}.mp4"
 codec = cv2.VideoWriter_fourcc(*"XVID")
 
-out = None
+recorder = None
 start_time = 0
 recording = False
 
@@ -38,11 +39,10 @@ while cap.isOpened():
         elapsed_time = time.time() - start_time
         elapsed_str = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
         draw_text_with_background(frame, f"REC:{elapsed_str}", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), (255, 255, 255), 0.6, 2)
-        out.write(frame)  # 毎フレーム書き込む
+        recorder.write(frame)
 
     # フレームを表示
     cv2.imshow('RaspberryPi Camera', frame)
-
     key = cv2.waitKey(1) & 0xFF
 
     # 録画開始
@@ -50,10 +50,8 @@ while cap.isOpened():
         dt = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         avi_filename = f"{dt}.avi"
         mp4_filename = f"{dt}.mp4"
-        out = cv2.VideoWriter(avi_filename, codec, fps, (width, height))  # FPSを設定
-        if not out.isOpened():
-            print("❌ VideoWriter の初期化に失敗しました")
-            break
+        recorder = Recorder(avi_filename, codec, fps, (width, height))
+        recorder.start()
         recording = True
         start_time = time.time()
         print("📹 録画を開始しました")
@@ -61,7 +59,7 @@ while cap.isOpened():
     # 録画終了
     elif key == ord('e') and recording:
         recording = False
-        out.release()
+        recorder.stop()
         print("🛑 録画を終了しました")
 
         # 非同期で変換処理
@@ -78,6 +76,4 @@ while cap.isOpened():
 
 # 後片付け
 cap.release()
-if out:
-    out.release()
 cv2.destroyAllWindows()
