@@ -94,6 +94,15 @@ while cap.isOpened():
         draw_text_with_background(frame, "Converting... Please wait", (5, height - 2 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
     else:
         draw_text_with_background(frame, "[q]:Quit", (5, height - 2 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
+    
+    # 現在時刻の表示（録画中じゃなくても毎フレーム表示）
+    current_time_str = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    (text_width, text_height), _ = cv2.getTextSize(current_time_str, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+    x_pos = width - text_width - 5  # 右端から5px余白
+    y_pos = 30  # 上から30pxの高さ
+    draw_text_with_background(frame, current_time_str, (x_pos, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
+
+
     # 録画中表示
     if recorder and recorder.recording:
         elapsed_time = time.time() - start_time
