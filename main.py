@@ -16,13 +16,11 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 
 # コーデック
 codec = cv2.VideoWriter_fourcc(*"XVID")
-
 recorder = None
 active_recorders = []
 start_time = 0
 avi_filename = ""
 mp4_filename = ""
-
 motion_detected = False
 motion_detection_enabled = False
 last_motion_time = time.time()
@@ -102,7 +100,6 @@ while cap.isOpened():
     y_pos = 30  # 上から30pxの高さ
     draw_text_with_background(frame, current_time_str, (x_pos, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
 
-
     # 録画中表示
     if recorder and recorder.recording:
         elapsed_time = time.time() - start_time
@@ -155,7 +152,6 @@ while cap.isOpened():
 
     # 使い終わった recorder をクリーンアップ
     active_recorders = [r for r in active_recorders if r.recording or r.converting]
-
 
 # 後片付け
 cap.release()
