@@ -33,6 +33,9 @@ COOL_DOWN_TIME = 5  # 秒
 # 前フレームとの差分を取るための初期化
 previous_frame = None
 
+# テキスト行の高さ
+line_height = 30
+
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -77,20 +80,20 @@ while cap.isOpened():
         previous_frame = gray
 
     # 操作案内表示
-    draw_text_with_background(frame, "[s]:Start REC", (5, 415), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
-    draw_text_with_background(frame, "[e]:End REC",   (5, 445), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
+    draw_text_with_background(frame, "[s]:Start REC", (5, height - 5 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
+    draw_text_with_background(frame, "[e]:End REC", (5, height - 4 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
 
     # モード表示
     if motion_detection_enabled:
-        draw_text_with_background(frame, "[m]:Motion Detection Mode: ON", (5, 475), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
+        draw_text_with_background(frame, "[m]:Motion Detection Mode: ON", (5, height - 3 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
     else:
-        draw_text_with_background(frame, "[m]:Motion Detection Mode: OFF", (5, 475), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
+        draw_text_with_background(frame, "[m]:Motion Detection Mode: OFF", (5, height - 3 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
 
+    # 変換中表示 or Quit
     if any(r.converting for r in active_recorders):
-        draw_text_with_background(frame, "Converting... Please wait", (5, 505), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
+        draw_text_with_background(frame, "Converting... Please wait", (5, height - 2 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), (255, 255, 255), 0.6, 2)
     else:
-        draw_text_with_background(frame, "[q]:Quit", (5, 535), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
-
+        draw_text_with_background(frame, "[q]:Quit", (5, height - 2 * line_height), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), (255, 255, 255), 0.6, 2)
     # 録画中表示
     if recorder and recorder.recording:
         elapsed_time = time.time() - start_time
